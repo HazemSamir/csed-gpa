@@ -1,820 +1,220 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=windows-1256" />
-		<title>CSED Alex, GPA Calculator</title>
-		
-		<!--script type="text/javascript" src="gpacalc.js"></script-->
-		<script>
-/*
-Liscence:
-You are free to copy, edit and make use of this code but you have to include my name "Amr Kabardy" as the original author of the code and also include the source where you got it from.
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CSED GPA Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="css/bootstrap.css" media="screen">
+    <link rel="stylesheet" href="css/custom.min.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+      <script src="js/respond.min.js"></script>
+    <![endif]-->
 
-Author: Amr Kabardy
-Website: http://amrkabardy.blogspot.com
-*/
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="gpa-calculator.js"></script>
+  </head>
+
+  <body ng-app="gpa-calculator">
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="#" class="navbar-brand">CSED GPA Calculator</a>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="index-old.html" target="_blank">Basic Version</a></li>
+            <li><a href="http://hazemsamir.github.io" target="_blank">About Hazem</a></li>
+          </ul>
+
+        </div>
+      </div>
+    </div>
 
 
-var hours = [
-	[ [6,6,4,4], [6,8,6,12,4,2,2] ],
-	[ [6,5,6,4,6,3], [6,4,5,6,6,3] ],
-	[ [6,5,6,4,6,2], [5,5,6,6,6,2] ],
-	[ [6,6,5,5,5,3], [5,6,5,5,6,3] ],
-	[ [6,5,5,5,4], [6,5,5,6,10,3] ]
-];
+    <div class="container" ng-controller="calculator as calc">
 
-var terms = [
-	[ "Preparatory Year - First Semester", "Preparatory Year - Second Semester"],
-	[ "First Year - First Semester", "First Year - Second Semester"],
-	[ "Second Year - First Semester", "Second Year - Second Semester" ],
-	[ "Third Year - First Semester", "Third Year - Second Semester" ],
-	[ "Fourth Year - First Semester", "Fourth Year - Second Semester" ]
-];
+      <div class="page-header" id="banner">
 
-var grades = ['Distinction', 'Very Good', 'Good', 'Pass', 'Week', 'Very Week'];
+        <div class="row">
 
-function $(id) {
-	return document.getElementById(id);
-}
+          <div class="col-lg-3 col-md-3 col-sm-4">
+            <ul class="nav nav-pills nav-stacked">
+              <li class="active"> <a data-toggle="tab" href="#welcome">Welcome</a></li>
+              <li> <a data-toggle="tab" href="#gpa-settings">GPA Settings</a></li>
 
-function writeGradesCombobox(id) {
-	var t = '<select id="'+id+'">'
-		+ '<option value="0" selected="selected">Excellent/Distinction</option>'
-		+ '<option value="1">Very Good</option>'
-		+ '<option value="2">Good</option>'
-		+ '<option value="3">Pass</option>'
-		+ '<option value="4">Week/Poor</option>'
-		+ '<option value="5">Very Week/Very Poor</option>'
-		+ '</select>';
-	document.write(t);
-}
+                <li class="nav-divider" ng-repeat-start="year in calc.years"> </li>
+                <li> {{ calc.getYearName($index) }} Year </li>
+                <li>
+                  <a data-toggle="tab" ng-href="#year{{$index}}_0">
+                    1st semester
+                    <label class="btn btn-default btn-xs pull-right"  data-toggle="button" ng-click="year[0].enabled=!year[0].enabled; calc.calculateGPA()">
+                      include
+                    </label>
+                  </a>
+                </li>
+                <li ng-repeat-end>
+                  <a data-toggle="tab" ng-href="#year{{$index}}_1">
+                    2nd semester
+                    <label class="btn btn-default btn-xs pull-right"  data-toggle="button" ng-click="year[1].enabled=!year[1].enabled; calc.calculateGPA()">
+                      include
+                    </label>
+                  </a>
+                </li>
+            </ul>
 
-function calculateGPA() {
-	var num = 0, denom = 0;
-	var semesters = "";
-	var tmp;
-	
-	//Setting Preference
-	var gp = [4, 3.5, 2.75, 2, 1, 0]; //default grade points
-	for(var gp_index = 0; gp_index < 6; gp_index ++) {
-		try {
-			tmp = parseFloat($('gp-'+gp_index).value);
-			if(tmp >= 0.0 && tmp <= 4.0) {
-				gp[gp_index] = tmp;
-				semesters += "\n"+grades[gp_index]+" = " + tmp + " points";
-			} else throw "Err";
-		} catch(e){semesters += "\n"+grades[gp_index]+" = " + gp[gp_index] + " points - Default Used";}
-	}
-	
-	//Calculations
-	for(var i = 0; i < 5; i ++) {
-		for(var j = 0; j < 2; j ++) {
-			if( $("term"+(i)+"_"+(j+1)).checked ) {
-				semesters += "\n"+terms[i][j];
-				for(var k = 0; k < hours[i][j].length; k++) {
-					num += gp[$("subj"+(i)+"_"+(j+1)+"_"+(k+1)).value] * hours[i][j][k];
-					denom += hours[i][j][k];
-				}
-			}
-		}
-	}
-	
-	if(denom != 0) {
-		alert("Selected Semesters:"+semesters+"\nScrol to the bottom of the page to see your GPA.");
-		$("gpa").value = num/denom;
-	}
-	else { alert("You must select at least 1 semester to start calcuations!!") }
-}
+          </div>
 
-		</script>
-		
-		<!--link rel="stylesheet" type="text/css" href="gpacalc.css" /-->
-		<style>
-.head {color:#0000ff}
-.side-title {color:#ff0000}
-.year-table{border: solid blue 1px}
-.width50-percent{width:50%}
-.center{text-align:center}
-.red{color:#ff0000}
-		</style>
-		
-	</head>
-	<body>
-		<table cellspacing="2" cellpadding="3" border="0" width="100%">
-			<tr>
-				<td align="center">
-					<span class="head">
-						Alexandria University, Faculty of Engineering, Computer and Systems Engineering Department
-					</span>
-					<h1><span class="head">CSED Alex - GPA Calculator</span></h1>
-					
-					<p>by, <a href="http://amrkabardy.blogspot.com">Amr Kabardy</a></p>
-					<hr />
-				</td>
-			</tr>
-			<tr>
-				<td align="left">
-					<p>
-					If you don't know what is GPA "Grade Point Average", please <a href="http://amrkabardy.blogspot.com/2007/03/gpa-grade-point-average.html"> visite this page first</a>.<br />
-					This page provide a simple calculator that you can use to get your GPA and calculations are based on instructions and points stated in <a href="http://amrkabardy.blogspot.com/2007/03/gpa-grade-point-average.html">this post</a>. The calculator is not generic and is statically made for being used by my colleagues.
-					</p>
-					<p>
-						<b><span class="side-title">Last News:</span></b>
-					</p>
-					<ul>
-						<li><b>September 23, 2008:</b> New Feature* Set your preference of points attached to each grade. <a href="#preference">Check it!</a></li>
-						<li><b>April 6, 2008:</b> Caution and Disclaimer modified to be more specific. Revise it again.</li>
-						<li><b>April 5, 2008:</b> Preparatory year courses added. Now you can include preparatory year while getting your GPA.</li>
-						<li><b>April 5, 2008:</b> Removed project from GPA calculation in 4th year - 1st semester. This will give more accurate results.</li>
-					</ul>
-					<p>
-						<b><span class="side-title">Caution and Disclaimer:</span></b>
-					</p>
-					<ul>
-						<li>This document is intended for Students of Alexandria University, Faculty of Engineering, Computer and Systems Engineering Department. The calculator is created based on the <b>course plan that started to be applied since the academic year 2003-2004.</b> It is a subjct to be changed by the faculty. I did my best to get the results correctly :), you are responsible of revising your GPA if you think there is an error.</li>
-						<li>Be careful <b>if you will include preparatory year. It may be suitable for 2008 graduates only</b> in this case. Even your class is considering the 2003/2004 course plan, I got some information that some subjects were added later to preparatory year. So, check if the preparatory year subjects are yours or you take more subjects! And decide weather to include preparatory year or not :)</li>
-						<li>Any feedback or comments may be emailed to me on <a href="mailto:amrkabardy@gmail.com">amrkabardy@gmail.com</a> or by commenting on this post: <a href="http://amrkabardy.blogspot.com/2007/12/csed-alex-gpa-calculator.html">CSED Alex - GPA Calculator</a>.</li>
-						<li><b>Good Luck</b></li>
-					</ul>
-					<p>
-						This document is not revised by the faculty. And is a personal effort.
-					</p>
-					<p>
-						<b>Note:</b> Continuous subjects are the ones whose marks are calculated in the end of second semester but has weekly hours on both semesters.
-					</p>
-					<p>
-						<b><span class="side-title">
-							Privacy Statement:
-						</span></b>
-					</p>
-					<p>
-						All calculations in this page are done using Javascript. That is it runs locally by your browser and none of your results submitted here is transfered out to any server. Your data is kept private.
-					</p>
-				</td>
-			</tr>
-			<tr>
-				<td align="left">
-					<p>
-						<b><span class="side-title">
-							<a name="preference">GPA Settings</a>
-						</span></b>
-					</p>
-					
-					Before this section, you were forced to use the static points assigned to each grade (which were obtained from <a href="http://www.grad.wisc.edu/admin/iadmiss/000013143.html">this page</a>. Last Accessed on September 23, 2008). From now on, you can set your preference of points attached to each grade. If you are applying for a university that maps <b>"Very Good"</b> to <b>3 Points</b> instead of the default<b>3.5</b>, you can change it to your prefered value.
-					
-					<p>
-						<b>Notes:</b>
-					</p>
-					<ul>
-						<li>To use this feature, fill in your prefered grade points in the following table.</li>
-						<li>Each Row represents: (1) The grade, (2) The default grade points, and (3) Your prefered setting for the grade points.</li>
-						<li><span class="red">Leave your preferred value empty to use the default.</span></li>
-						<li>Grade Points are constrained to: (1) <span class="red">Between 0 and 4 inclusive.</span> (2) <span class="red">Either Integer or Floating Point number.</span></li>
-						<li><span class="red"><b>WRONG GRADE POINTS will be DISCARDED and Default will be used instead.</b></span></li>
-					</ul>
-					
-					<table cellspacing="3" cellpadding="2" border="1" class="center">
-						<tr>
-							<th>Grade</th><th>Default Points</th><th>Your Preference</th>
-						</tr>
-						<tr>
-							<th>Distinction/Excellent</th>
-							<td>4</td>
-							<td><input type="text" id="gp-0" /></td>
-						</tr>
-						<tr>
-							<th>Very Good</th>
-							<td>3.5</td>
-							<td><input type="text" id="gp-1" /></td>
-						</tr>
-						<tr>
-							<th>Good</th>
-							<td>2.75</td>
-							<td><input type="text" id="gp-2" /></td>
-						</tr>
-						<tr>
-							<th>Pass</th>
-							<td>2</td>
-							<td><input type="text" id="gp-3" /></td>
-						</tr>
-						<tr>
-							<th>Week/Poor</th>
-							<td>1</td>
-							<td><input type="text" id="gp-4" /></td>
-						</tr>
-						<tr>
-							<th>Very Week/Very Poor</th>
-							<td>0</td>
-							<td><input type="text" id="gp-5" /></td>
-						</tr>
-					</table>
-					
-					<p>
-						<b><span class="side-title">
-							The Calculator:
-						</span></b>
-					</p>
-					
-					<ul>
-						<li>Check the Semesters you want to include in calculations.</li>
-						<li>Specify your grades.</li>
-						<li>Hit any of the <b>"Get My GPA"</b> buttons across the page.</li>
-					</ul>
-					
-					<table cellspacing="3" cellpadding="2" width="100%" class="year-table">
-						<tr><th colspan="2" align="center" class="year-table">
-							<h3>Preparatory Year</h3>
-						</th></tr>
-						
-						<tr><td class="width50-percent" valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term0_1"/>
-									First Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>MP011</th><th>Mathematics-1</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_1_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP021</th><th>Mechanics-1 (Continuous Subject)</th><td>4</td><td></td>
-											</tr>
-											
-											<tr>
-												<th>MP031</th><th>Physics-1</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_1_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP041</th><th>Engineering Drawing-1 (Continuous Subject)</th><td>6</td><td></td>
-											</tr>
-											
-											<tr>
-												<th>CS021</th><th>Computers and Programming</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_1_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>PE011</th><th>Production</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_1_4');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td>
-						
-						<td valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term0_2"/>
-									Second Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>MP012</th><th>Mathematics-2</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP022</th><th>Mechanics-2</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP032</th><th>Physics-2</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP042</th><th>Engineering Drawing-2</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CH011</th><th>Engineering Chemistry</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS011</th><th>English</th><td>2</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_6');</script>
-												</td>
-											</tr>
+          <div class="tab-content col-lg-6" >
+            <div id="welcome" class="tab-pane fade in active">
+              <legend>Welcome to CSED Alex GPA Calculator</legend>
+              <p>
+                This calculator is a new version (with a stylish touch using Angular.js and Bootstrap) of Eng. Amr Kabardy's calculator created in 2008. You can check the original calculator page in <a href="index-old.html"> basic version </a>.
+              </p>
+              <p>
+    					This page provides a simple calculator that you can use to get your GPA. Calculations are based on instructions stated in <a href="http://egyptscholars.org/">Egypt Scholars Inc</a> <a href="http://egyptscholars.org/study-abroad-guide/">Study Abroad Guide</a> section#4.
+              The calculator is not generic and is statically made for being used by my colleagues.
+    					</p>
+              <p>
+    					<b>Comments and Contributions</b>
+              </p>
+              <p>
+                Contributions and comments are welcomed through <a href="https://www.github.com/HazemSamir/csed-gpa"> Github reporository </a>. You can open an issue, fork or make pull requests to add features or fix bugs.
+              </p>
+    					<p>
+    					<b>Caution and Disclaimer</b>
+    					<ul>
+    						<li>This document is intended for Students of Alexandria University, Faculty of Engineering, Computer and Systems Engineering Department.
+                  The calculator is created based on the <b> <a href="docs/BylawsFinal.pdf"> course plan </a> that started to be applied since the academic year 2003-2004.</b> It is a subjct to be changed by the faculty. You are responsible of revising your GPA if you think there is an error.</li>
+    						<li>Be careful <b>if you will include preparatory year. It may be suitable for graduates scince 2008 only</b> in this case. Even your class is considering the 2003/2004 course plan, I got some information that some subjects were added later to preparatory year. So, check if the preparatory year subjects are yours or you take more subjects! And decide weather to include preparatory year or not :)</li>
+    						<li>This document is not revised by the faculty. And is a personal effort.</li>
+    					</ul>
+              </p>
+    					<p>
 
-											<tr>
-												<th>HS021</th><th>Engineering Science History</th><td>2</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj0_2_7');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td></tr>
-					</table>
+    					</p>
+    					<p>
+    						<b>Note:</b> Continuous subjects are the ones whose marks are calculated in the end of second semester but has weekly hours on both semesters.
+    					</p>
+    					<p>
+    						<b>Privacy Statement:</b>
+    					</p>
+    					<p>
+    						All calculations in this page are done using Javascript. That is it runs locally by your browser and none of your results submitted here is transfered out to any server. Your data is kept private.
+    					</p>
+            </div>
 
-					<p class="center"><input type="button" value="Get My GPA" onclick="calculateGPA()"/></p>
+            <div id="gpa-settings" class="tab-pane fade">
+              <legend>GPA Settings</legend>
+              <div>
+                <p>
+                  Grade Points must be between 0 and 4 inclusive. If an invalid value entered for a grade the default value will be used instead.
+                </p>
+                <p>
+                  Default GPA values are from the old calculator whose link to reference is not valid now. However this grade to GPA points is quite similar to <a href="http://egyptscholars.org/">Egypt Scholars Inc</a>
+                  <a href="http://egyptscholars.org/study-abroad-guide/">Study Abroad Guide</a> section#4 and their <a href="https://youtu.be/2KvOnWH-Scs?t=10m37s"> video </a>. You still can adjust the points according to your needs.
+                </p>
+              </div>
 
-					<table cellspacing="3" cellpadding="2" width="100%" class="year-table">
-						<tr><th colspan="2" align="center" class="year-table">
-							<h3>First Year</h3>
-						</th></tr>
-						
-						<tr><td class="width50-percent" valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term1_1"/>
-									First Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>MP113</th><th>Mathematics-3</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS121</th><th>Programming-1</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>EE112</th><th>Electric Engineering Fundamentals</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>MP127</th><th>Mechanics-3</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>EE131</th><th>Modern Physics</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS171</th><th>Computer and Productivity Support</th><td>3</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_1_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td>
-						
-						<td valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term1_2"/>
-									Second Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>MPx14</th><th>Mathematics-4</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS111</th><th>Propability Theory and Computer Application</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS122</th><th>Data Structures-1</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS131</th><th>Computer Fundamentals</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>EEx11</th><th>Electric Circuits</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS172</th><th>Computer and Society</th><td>3</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj1_2_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td></tr>
-					</table>
+              <form class="form-horizontal">
+                <fieldset>
+                  <div class="form-group">
+                    <label class="col-lg-2 control-label" ng-repeat-start="(grade, gpa) in calc.grades"> {{ grade }}</label>
+                    <div class="col-lg-10" ng-repeat-end>
+                      <input type="number" class="form-control" name="{{grade}}-settings" min="0" max="4" step="0.01"
+                              value="{{ gpa }}" placeholder="{{ gpa }}"
+                              ng-model="calc.grades[grade]" ng-change="calc.calculateGPA()" required>
+                    </div>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
 
-					<p class="center"><input type="button" value="Get My GPA" onclick="calculateGPA()"/></p>
+              <div id="{{ 'year' + $index + '_0' }}" class="tab-pane fade" ng-repeat-start="year in calc.years" >
+                <legend> First Semester </legend>
 
-					<table cellspacing="3" cellpadding="2" width="100%" class="year-table">
-						<tr><th colspan="2" align="center" class="year-table">
-							<h3>Second Year</h3>
-						</th></tr>
-						
-						<tr><td class="width50-percent" valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term2_1"/>
-									First Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS211</th><th>Mathematics for Computer</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS221</th><th>Programming-2</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th></th><th>Electronics</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS212</th><th>Statistical Methods for Computers</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS231</th><th>Digital Systems-1</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HSx12</th><th>Technical Reports Writing</th><td>2</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_1_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td>
-						
-						<td valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term2_2"/>
-									Second Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS213</th><th>Numerical Analysis and Computer Applications</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS222</th><th>Systems and Components Programming</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS232</th><th>Digital Systems-2</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS241</th><th>Linear Control Systems</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS223</th><th>Data Structures-2</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HSx33</th><th>Laws For Engineering Profession</th><td>2</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj2_2_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td></tr>
-					</table>
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Subject</th>
+                      <th>Weekly Hours</th>
+                      <th>Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="subject in year[0].subjects">
+                      <td>{{ subject.code }}</td>
+                      <td>{{ subject.subject }}</td>
+                      <td>{{ subject.hours }}</td>
+                      <td>
+                        <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
+                          <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
+                        </select>
+                      </td>
+                    </tr>
+                  <tbody>
+                </table>
+                <hr>
+              </div>
 
-					<p class="center"><input type="button" value="Get My GPA" onclick="calculateGPA()"/></p>
+              <div id="{{ 'year' + $index + '_1' }}" class="tab-pane fade" ng-repeat-end>
+                <legend> Second Semester </legend>
 
-					<table cellspacing="3" cellpadding="2" width="100%" class="year-table">
-						<tr><th colspan="2" align="center" class="year-table">
-							<h3>Third Year</h3>
-						</th></tr>
-						
-						<tr><td class="width50-percent" valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term3_1"/>
-									First Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS331</th><th>Micro Systems</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS341</th><th>Non-Linear Control Systems</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS311</th><th>Algorithms</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS332</th><th>Digital Signal Processing</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS333</th><th>Operating Systems</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS373</th><th>Human to Computer Interaction-1</th><td>3</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_1_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td>
-						
-						<td valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term3_2"/>
-									Second Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS312</th><th>Operations Research</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS334</th><th>Embedded Systems</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CSx35</th><th>Computer Architecture</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS321</th><th>Programming Languages and Compilers</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS322</th><th>Database Systems</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS374</th><th>Human to Computer Interaction</th><td>3</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj3_2_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td></tr>
-					</table>
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Subject</th>
+                      <th>Weekly Hours</th>
+                      <th>Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="subject in year[1].subjects">
+                      <td>{{ subject.code }}</td>
+                      <td>{{ subject.subject }}</td>
+                      <td>{{ subject.hours }}</td>
+                      <td>
+                        <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
+                          <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
+                        </select>
+                      </td>
+                    </tr>
+                  <tbody>
+                </table>
+                <hr>
+              </div>
 
-					<p class="center"><input type="button" value="Get My GPA" onclick="calculateGPA()"/></p>
+          </div>
+          <div class="col-lg-3">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">GPA</h3>
+            </div>
+            <div class="panel-body">
+              <h4> {{ calc.gpa }} </h4>
+            </div>
+          </div>
 
-					<table cellspacing="3" cellpadding="2" width="100%" class="year-table">
-						<tr><th colspan="2" align="center" class="year-table">
-							<h3>Fourth Year</h3>
-						</th></tr>
-						
-						<tr><td class="width50-percent" valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term4_1"/>
-									First Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS431</th><th>Computer Networks</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_1_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS4E1</th><th>Elective Course-1</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_1_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS4E2</th><th>Elective Course-2</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_1_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS441</th><th>Modern Control Systems</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_1_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS401</th><th>Project (Continuous Subject)</th><td>5</td><td></td>
-											</tr>
-											
-											<tr>
-												<th>HSx64</th><th>Engineering Economy</th><td>4</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_1_5');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td>
-						
-						<td valign="top">
-							<table cellspacing="3" cellpadding="2" border="0" width="100%">
-								<tr><th align="center">
-									<input type="checkbox" id="term4_2"/>
-									Second Semester
-								</th></tr>
-								
-								<tr><td>
-									<div class="center">
-										<table cellspacing="3" cellpadding="2" border="1" width="100%">
-											<tr>
-												<th>Code</th><th>Subject</th><th>Weekly Hours</th><th>Grade</th>
-											</tr>
-											<tr>
-												<th>CS432</th><th>Distributed Systems and Internet Programing</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_1');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS4E3</th><th>Elective Course-3</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_2');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS4E4</th><th>Elective Course-4</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_3');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS433</th><th>Performance Analysis</th><td>6</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_4');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>CS402</th><th>Project</th><td>5</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_5');</script>
-												</td>
-											</tr>
-											
-											<tr>
-												<th>HS444</th><th>Social Dangerouse and Securing Computer Systems</th><td>3</td><td>
-													<script type="text/javascript">writeGradesCombobox('subj4_2_6');</script>
-												</td>
-											</tr>
-										</table>
-									</div>
-								</td></tr>
-							</table>
-						</td></tr>
-					</table>
+        </div>
 
-					<p class="center"><input type="button" value="Get My GPA" onclick="calculateGPA()"/></p>
-					
-					<p class="center">
-						<b><span style="font-size: large">Your GPA: 
-						<input type="text" id="gpa" value="???" readonly="readonly"/>
-						/ 4.0</span></b>
-					</p>
-				</td>
-			</tr>
-			
-			<tr>
-				<td align="center">
-					<hr />
-					by, <a href="http://amrkabardy.blogspot.com">Amr Kabardy</a>
-				</td>
-			</tr>
-		</table>
-	</body>
+      </div>
+
+    </div>
+    <h6 class="pull-right">
+      <small>
+        <p>Template from <a href="https://github.com/thomaspark/bootswatch/">bootswatch</a>
+           Code released under the <a href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>.
+           Based on <a href="http://getbootstrap.com" rel="nofollow">Bootstrap</a>. Icons from <a href="http://fortawesome.github.io/Font-Awesome/" rel="nofollow">Font Awesome</a>. Web fonts from <a href="http://www.google.com/webfonts" rel="nofollow">Google</a>.
+        </p>
+      <small>
+    </h6>
+
+  </body>
 </html>
