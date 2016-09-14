@@ -72,8 +72,8 @@ var GRADES = {
   'Very Good': 3.5,
   'Good': 2.75,
   'Pass': 2,
-  'Week': 1,
-  'Very Week': 0
+  'Weak': 1,
+  'Very Weak': 0
 };
 
 var years = [
