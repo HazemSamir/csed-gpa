@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="css/bootstrap.css" media="screen">
     <link rel="stylesheet" href="css/custom.min.css">
+    <link rel="stylesheet" href="css/toggle-switch.css">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="js/html5shiv.js"></script>
@@ -30,8 +31,9 @@
         </div>
         <div class="navbar-collapse collapse" id="navbar-main">
           <ul class="nav navbar-nav navbar-right">
+              <li><a href="https://github.com/HazemSamir/csed-gpa/blob/gh-pages/README.md" target="_blank">About</a></li>
             <li><a href="index-old.html" target="_blank">Basic Version</a></li>
-            <li><a href="http://hazemsamir.github.io" target="_blank">About Hazem</a></li>
+            <li><a href="https://hazemsamir.github.io" target="_blank">About Hazem</a></li>
           </ul>
 
         </div>
@@ -40,185 +42,149 @@
 
 
     <div class="container" ng-controller="calculator as calc">
-
       <div class="page-header" id="banner">
-
         <div class="row">
-
-          <div class="col-lg-3 col-md-3 col-sm-4">
-            <ul class="nav nav-pills nav-stacked">
-              <li class="active"> <a data-toggle="tab" href="#welcome">Welcome</a></li>
-              <li> <a data-toggle="tab" href="#gpa-settings">GPA Settings</a></li>
-
-                <li class="nav-divider" ng-repeat-start="year in calc.years"> </li>
-                <li> {{ calc.getYearName($index) }} Year </li>
-                <li>
-                  <a data-toggle="tab" ng-href="#year{{$index}}_0">
-                    1st semester
-                    <label class="btn btn-default btn-xs pull-right"  data-toggle="button" ng-click="year[0].enabled=!year[0].enabled; calc.calculateGPA()">
-                      include
-                    </label>
-                  </a>
-                </li>
-                <li ng-repeat-end>
-                  <a data-toggle="tab" ng-href="#year{{$index}}_1">
-                    2nd semester
-                    <label class="btn btn-default btn-xs pull-right"  data-toggle="button" ng-click="year[1].enabled=!year[1].enabled; calc.calculateGPA()">
-                      include
-                    </label>
-                  </a>
-                </li>
-            </ul>
-
-          </div>
-
-          <div class="tab-content col-lg-6" >
-            <div id="welcome" class="tab-pane fade in active">
-              <legend>Welcome to CSED Alex GPA Calculator</legend>
-              <p>
-                This calculator is a new version (with a stylish touch using Angular.js and Bootstrap) of Eng. Amr Kabardy's calculator created in 2008. You can check the original calculator page in <a href="index-old.html"> basic version </a>.
-              </p>
-              <p>
-    					This page provides a simple calculator that you can use to get your GPA. Calculations are based on instructions stated in <a href="http://egyptscholars.org/">Egypt Scholars Inc</a> <a href="http://egyptscholars.org/study-abroad-guide/">Study Abroad Guide</a> section#4.
-              The calculator is not generic and is statically made for being used by my colleagues.
-    					</p>
-              <p>
-    					<b>Comments and Contributions</b>
-              </p>
-              <p>
-                Contributions and comments are welcomed through <a href="https://www.github.com/HazemSamir/csed-gpa"> Github reporository </a>. You can open an issue, fork or make pull requests to add features or fix bugs.
-              </p>
-    					<p>
-    					<b>Caution and Disclaimer</b>
-    					<ul>
-    						<li>This document is intended for Students of Alexandria University, Faculty of Engineering, Computer and Systems Engineering Department.
-                  The calculator is created based on the <b> <a href="docs/BylawsFinal.pdf"> course plan </a> that started to be applied since the academic year 2003-2004.</b> It is a subjct to be changed by the faculty. You are responsible of revising your GPA if you think there is an error.</li>
-    						<li>Be careful <b>if you will include preparatory year. It may be suitable for graduates scince 2008 only</b> in this case. Even your class is considering the 2003/2004 course plan, I got some information that some subjects were added later to preparatory year. So, check if the preparatory year subjects are yours or you take more subjects! And decide weather to include preparatory year or not :)</li>
-    						<li>This document is not revised by the faculty. And is a personal effort.</li>
-    					</ul>
-              </p>
-    					<p>
-
-    					</p>
-    					<p>
-    						<b>Note:</b> Continuous subjects are the ones whose marks are calculated in the end of second semester but has weekly hours on both semesters.
-    					</p>
-    					<p>
-    						<b>Privacy Statement:</b>
-    					</p>
-    					<p>
-    						All calculations in this page are done using Javascript. That is it runs locally by your browser and none of your results submitted here is transfered out to any server. Your data is kept private.
-    					</p>
-            </div>
-
-            <div id="gpa-settings" class="tab-pane fade">
-              <legend>GPA Settings</legend>
-              <div>
-                <p>
-                  Grade Points must be between 0 and 4 inclusive. If an invalid value entered for a grade the default value will be used instead.
-                </p>
-                <p>
-                  Default GPA values are from the old calculator whose link to reference is not valid now. However this grade to GPA points is quite similar to <a href="http://egyptscholars.org/">Egypt Scholars Inc</a>
-                  <a href="http://egyptscholars.org/study-abroad-guide/">Study Abroad Guide</a> section#4 and their <a href="https://youtu.be/2KvOnWH-Scs?t=10m37s"> video </a>. You still can adjust the points according to your needs.
-                </p>
-              </div>
-
-              <form class="form-horizontal">
-                <fieldset>
-                  <div class="form-group">
-                    <label class="col-lg-2 control-label" ng-repeat-start="(grade, gpa) in calc.grades"> {{ grade }}</label>
-                    <div class="col-lg-10" ng-repeat-end>
-                      <input type="number" class="form-control" name="{{grade}}-settings" min="0" max="4" step="0.01"
-                              value="{{ gpa }}" placeholder="{{ gpa }}"
-                              ng-model="calc.grades[grade]" ng-change="calc.calculateGPA()" required>
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
-            </div>
-
-              <div id="{{ 'year' + $index + '_0' }}" class="tab-pane fade" ng-repeat-start="year in calc.years" >
-                <legend> First Semester </legend>
-
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Subject</th>
-                      <th>Weekly Hours</th>
-                      <th>Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr ng-repeat="subject in year[0].subjects">
-                      <td>{{ subject.code }}</td>
-                      <td>{{ subject.subject }}</td>
-                      <td>{{ subject.hours }}</td>
-                      <td>
-                        <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
-                          <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
-                        </select>
-                      </td>
-                    </tr>
-                  <tbody>
-                </table>
-                <hr>
-              </div>
-
-              <div id="{{ 'year' + $index + '_1' }}" class="tab-pane fade" ng-repeat-end>
-                <legend> Second Semester </legend>
-
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Subject</th>
-                      <th>Weekly Hours</th>
-                      <th>Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr ng-repeat="subject in year[1].subjects">
-                      <td>{{ subject.code }}</td>
-                      <td>{{ subject.subject }}</td>
-                      <td>{{ subject.hours }}</td>
-                      <td>
-                        <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
-                          <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
-                        </select>
-                      </td>
-                    </tr>
-                  <tbody>
-                </table>
-                <hr>
-              </div>
-
-          </div>
-          <div class="col-lg-3">
-          <div class="panel panel-primary">
+          <div class="panel">
             <div class="panel-heading">
-              <h3 class="panel-title">GPA</h3>
-            </div>
-            <div class="panel-body">
-              <h4> {{ calc.gpa }} </h4>
+                <strong class="pull-left">If you like it, put a </strong>
+                <span class="pull-left"><a class="github-button" href="https://github.com/hazemsamir/csed-gpa" data-icon="octicon-star" data-style="mega"
+                data-count-href="/ntkme/github-buttons/stargazers" data-count-api="/repos/hazemsamir/csed-gpa#stargazers_count"
+                data-count-aria-label="# stargazers on GitHub" aria-label="Star csed-gpa calculator on GitHub">Star</a></span>
+                <strong> on it!</strong>
             </div>
           </div>
-          <a class="github-button" href="https://github.com/hazemsamir/csed-gpa" data-icon="octicon-star" data-style="mega"
-          data-count-href="/ntkme/github-buttons/stargazers" data-count-api="/repos/hazemsamir/csed-gpa#stargazers_count"
-          data-count-aria-label="# stargazers on GitHub" aria-label="Star csed-gpa calculator on GitHub">Star</a>
+          <div class="panel-group" id="accordion">
+
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#settings">
+                <h4 class="panel-title">
+                  <span class="fa fa-cog"></span>
+                  <a>GPA Settings</a>
+                </h4>
+              </div>
+              <div id="settings" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div>
+                      <p>Grade Points must be between 0 and 4 inclusive. If an invalid value is entered, the default value will be used instead.</p>
+                      <p>
+                        Default GPA values are from <a href="http://egyptscholars.org/">Egypt Scholars Inc</a>
+                        <a href="http://egyptscholars.org/study-abroad-guide/">Study Abroad Guide</a> section#4 and their <a href="https://youtu.be/2KvOnWH-Scs?t=10m37s"> video </a>. You can adjust the points according to your needs.
+                      </p>
+                    </div>
+      
+                    <form class="form-horizontal">
+                      <fieldset>
+                        <div class="form-group">
+                          <div class="row" ng-repeat="(grade, gpa) in calc.grades">
+                            <label class="col-lg-2 control-label"> {{ grade }}</label>
+                            <div class="col-lg-6">
+                              <input type="number" class="form-control" name="{{grade}}-settings" min="0" max="4" step="0.01"
+                                      value="{{ gpa }}" placeholder="{{ gpa }}"
+                                      ng-model="calc.grades[grade]" ng-change="calc.calculateGPA()" required>
+                            </div>
+                          </div>
+                        </div>
+                      </fieldset>
+                    </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a href="#summary">
+                    Total GPA
+                  </a>
+                </h4>
+              </div>
+              <div class="panel-body"> <h4>{{ calc.gpa | number}} </h4> </div>
+            </div>
+            
+            <div class="panel panel-success" ng-repeat-start="year in calc.years" >
+              <div class="panel-heading">
+                <div class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#{{'year' + $index + '_0'}}">
+                      {{ calc.getYearName($index) }} Year - 1st Semester
+                  </a>
+                  <label class="switch pull-right">
+                    <input type="checkbox" ng-click="year[0].enabled=!year[0].enabled; calc.calculateGPA()">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+              <div id="{{'year' + $index + '_0'}}" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Code</th>
+                          <th>Subject</th>
+                          <th>Weekly Hours</th>
+                          <th>Grade</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="subject in year[0].subjects">
+                          <td>{{ subject.code }}</td>
+                          <td>{{ subject.subject }}</td>
+                          <td>{{ subject.hours }}</td>
+                          <td>
+                            <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
+                              <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
+                            </select>
+                          </td>
+                        </tr>
+                      <tbody>
+                    </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel panel-default" ng-repeat-end>
+              <div class="panel-heading">
+                  <div class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#{{'year' + $index + '_1'}}">
+                        {{ calc.getYearName($index) }} Year - 2nd Semester
+                    </a>
+                    <label class="switch pull-right">
+                      <input type="checkbox"  ng-click="year[1].enabled=!year[1].enabled; calc.calculateGPA()">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+              </div>
+              <div id="{{'year' + $index + '_1'}}" class="panel-collapse collapse">
+                <div class="panel-body">
+                  <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Code</th>
+                          <th>Subject</th>
+                          <th>Weekly Hours</th>
+                          <th>Grade</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="subject in year[1].subjects">
+                          <td>{{ subject.code }}</td>
+                          <td>{{ subject.subject }}</td>
+                          <td>{{ subject.hours }}</td>
+                          <td>
+                            <select class="form-control" ng-show="!subject.continuous" ng-change="calc.calculateGPA()" ng-model="subject.grade">
+                              <option ng-repeat="(grade, gpa) in calc.grades" >{{ grade }}</option>
+                            </select>
+                          </td>
+                        </tr>
+                      <tbody>
+                    </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
-
       </div>
-
     </div>
-    <h6 class="pull-right">
-      <small>
-        <p>Template from <a href="https://github.com/thomaspark/bootswatch/">bootswatch</a>
-           Code released under the <a href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>.
-           Based on <a href="http://getbootstrap.com" rel="nofollow">Bootstrap</a>. Icons from <a href="http://fortawesome.github.io/Font-Awesome/" rel="nofollow">Font Awesome</a>. Web fonts from <a href="http://www.google.com/webfonts" rel="nofollow">Google</a>.
-        </p>
-      <small>
-    </h6>
 
   </body>
 </html>

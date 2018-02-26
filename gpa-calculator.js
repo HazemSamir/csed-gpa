@@ -128,7 +128,7 @@ var years = [
         { code: 'CS122', subject: 'Data Structures-1', hours: 5 },
         { code: 'CS131', subject: 'Computer Fundamentals', hours: 6 },
         { code: 'EEx11', subject: 'Electric Circuits', hours: 6 },
-        { code: 'HS172', subject: 'ComComputer and Society', hours: 3 }
+        { code: 'HS172', subject: 'Computer and Society', hours: 3 }
       ]
     }
   ],
