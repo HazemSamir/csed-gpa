@@ -4,15 +4,17 @@ CSED Alex - GPA Calculator
 This calculator is a new version (with a stylish touch using Angular.js and Bootstrap) of Eng. Amr Kabardy's calculator created in 2008, you can check the original calculator page in [index-old.html](https://hazemsamir.github.io/csed-gpa/old-index.html).
 
 
-This page provides a simple calculator that you can use to calculate your GPA and calculations are based on instructions and points stated in [Egypt Scholars Inc](http://egyptscholars.org/) [Study Abroad Guide](http://egyptscholars.org/study-abroad-guide/) section#4.
+[This website](https://hazemsamir.github.io/csed-gpa) provides a simple calculator that you can use to calculate your GPA. The calculations are based on instructions stated in [Egypt Scholars Inc](http://egyptscholars.org/) [Study Abroad Guide](http://egyptscholars.org/study-abroad-guide/) section#4.
 
-The calculator is not generic and is a personal effort and is not officially supported by the university.
+_The calculator is not generic and is a personal effort and is not officially supported by the university._
 
 
 Comments and Contributions
 ---------------------
 Contributions and comments are welcomed through this Github repository. You can open an issue, fork and make pull requests to add features or fix bugs.
 
+### Shoutout to Contributers
+- Mohamed Ayman [@Hamada14](https://github.com/Hamada14).
 
 Caution and Disclaimer
 ----------------------
@@ -26,3 +28,5 @@ Caution and Disclaimer
 Privacy Statement
 -----------------
 All calculations in this page are done using JavaScript. That is it runs locally by your browser and none of your results submitted here is transferred out to any server. Your data is kept private.
+
+To save you time next time you visit the website, your grades are saved locally in your browser. If you wish to remove the data, you can clear website storage from your browser settings.
