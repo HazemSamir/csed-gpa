@@ -56,14 +56,11 @@
           <div class="panel-group" id="accordion">
 
             <div class="panel panel-default">
-              <div class="panel-heading">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#settings">
                 <h4 class="panel-title">
                   <span class="fa fa-cog"></span>
-                  <a data-toggle="collapse" data-parent="#accordion" href="#settings">GPA Settings</a>
+                  <a href="#settings">GPA Settings</a>
                 </h4>
-                <div class="btn-group pull-right">
-                  <button type="button" ng-click="calc.initializeGrades(); calc.calculateGPA()" class="btn btn-secondary btn-sm">Reset</button>
-                </div>
                 <div class="clearfix"></div>
               </div>
               <div id="settings" class="panel-collapse collapse">
@@ -88,6 +85,9 @@
                             </div>
                           </div>
                         </div>
+                        <div class="btn-group pull-right" style="margin:2%">
+                            <button type="button" ng-click="calc.initializeGrades(); calc.calculateGPA()" class="btn btn-danger">Reset to default</button>
+                        </div>
                       </fieldset>
                     </form>
                 </div>
@@ -96,14 +96,14 @@
 
             <div class="panel panel-primary">
               <div class="panel-heading">
-                <h4 class="panel-title">
+                <span class="panel-title">
                   <a href="#summary">
                     Total GPA
                   </a>
-                </h4>
-                <div class="btn-group pull-right">
-                  <button type="button" ng-click="calc.initializeYears(); calc.calculateGPA()" class="btn btn-secondary btn-sm">Reset</button>
-                </div>
+                </span>
+                <span class="btn-group pull-right">
+                  <button type="button" ng-click="calc.initializeYears(); calc.calculateGPA()" class="btn btn-default btn-sm">Reset</button>
+                </span>
                 <div class="clearfix"></div>
               </div>
               <div class="panel-body">
