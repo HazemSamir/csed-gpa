@@ -13,8 +13,6 @@ Comments and Contributions
 ---------------------
 Contributions and comments are welcomed through this Github repository. You can open an issue, fork and make pull requests to add features or fix bugs.
 
-Please read the [welcome section](http://hazemsamir.github.io/csed-gpa) in the web page.
-
 
 Caution and Disclaimer
 ----------------------
