@@ -14,21 +14,42 @@ app.controller('calculator', function(){
   this.grades = { };
   this.gpa = 0;
 
-  // copy GRADES object
-  for (grade in GRADES) {
-    this.grades[grade] = GRADES[grade];
-  }
-  // init subjects grades
-  for(var i = 0; i < that.years.length; i++) {
-    var year = that.years[i];
-    for(var j = 0; j < year.length; j++) {
-      var semester = year[j];
-      for(var k = 0; k < semester.subjects.length; k++) {
-        var subject = semester.subjects[k];
-        subject.grade = 'Distinction';
+  this.initializeGrades = function (localGrades) {
+    // Checks if grades exist in local storage.
+    if(localGrades != null) {
+      // Use value initialized in local storage.
+      this.grades = JSON.parse(localGrades);
+    } else {
+      // copy GRADES object
+      for (grade in GRADES) {
+        this.grades[grade] = GRADES[grade];
       }
     }
-  }
+  };
+
+  this.initializeYears = function (localYears) {
+    // Checks if year configuration exists in local storage.
+    if(localYears != null) {
+      // Use value initialized in local storage.
+      that.years = JSON.parse(localYears);
+    } else {
+      // init subjects grades
+      for(var i = 0; i < that.years.length; i++) {
+        var year = that.years[i];
+        for(var j = 0; j < year.length; j++) {
+          var semester = year[j];
+          semester.enabled = false;
+          for(var k = 0; k < semester.subjects.length; k++) {
+            var subject = semester.subjects[k];
+            subject.grade = 'Distinction';
+          }
+        }
+      }
+    }
+  };
+
+  this.initializeGrades(localStorage.grades);
+  this.initializeYears(localStorage.years);
 
   var yearsName = [['Preparatory', 'Prep'], ['First', '1st'], ['Second', '2nd'],
                    ['Third', '3rd'], ['Fourth', '4th']];
@@ -63,8 +84,13 @@ app.controller('calculator', function(){
   	} else {
       that.gpa = 0;
     }
+
+    localStorage.years = JSON.stringify(that.years);
+    localStorage.grades = JSON.stringify(that.grades);
   };
 
+  // Use to calculate the GPA when the page loads initially with certain local storage data.
+  this.calculateGPA();
 });
 
 var GRADES = {
